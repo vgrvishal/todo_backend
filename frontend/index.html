@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TASKS — Do it.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0e0e;
+      --surface: #161616;
+      --surface2: #1f1f1f;
+      --border: #2a2a2a;
+      --accent: #c8f135;
+      --accent2: #ff5e3a;
+      --text: #f0ede6;
+      --muted: #555;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── Two-panel card ── */
+    .layout {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      width: min(1080px, 96vw);
+      height: min(760px, 92vh);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.65);
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      border-right: 1px solid var(--border);
+      padding: 44px 36px 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+      background: #111;
+      overflow-y: auto;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(64px, 10vw, 96px);
+      line-height: 0.88;
+      color: var(--text);
+      letter-spacing: 0.02em;
+      margin-top: 4px;
+    }
+
+    h1 span { color: var(--accent); }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+      font-weight: 300;
+      letter-spacing: 0.02em;
+    }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .stat {
+      flex: 1;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .stat + .stat { border-left: 1px solid var(--border); }
+
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 34px;
+      line-height: 1;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    /* Form */
+    .add-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      transition: border-color 0.2s;
+    }
+
+    .add-form:focus-within { border-color: var(--accent); }
+
+    .form-label {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    input[type="text"] {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    input[type="text"]::placeholder { color: var(--muted); }
+    input[type="text"]:focus { border-color: var(--accent); background: #0a0a0a; }
+
+    .btn-add {
+      background: var(--accent);
+      color: #0e0e0e;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.15s, opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 2px;
+    }
+
+    .btn-add:hover { opacity: 0.85; transform: scale(0.99); }
+    .btn-add:active { transform: scale(0.97); }
+    .btn-add svg { width: 15px; height: 15px; }
+
+    .branding {
+      margin-top: auto;
+      font-size: 10px;
+      color: #2e2e2e;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .right-header {
+      padding: 26px 28px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .right-title {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .right-count {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    /* Scrollable list */
+    .task-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 22px 22px;
+      scrollbar-width: thin;
+      scrollbar-color: #2a2a2a transparent;
+    }
+
+    .task-scroll::-webkit-scrollbar { width: 4px; }
+    .task-scroll::-webkit-scrollbar-track { background: transparent; }
+    .task-scroll::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 10px; }
+    .task-scroll::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+
+    #task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .task-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: border-color 0.2s, transform 0.15s, opacity 0.3s;
+      animation: slideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .task-item:hover { border-color: #333; transform: translateY(-1px); }
+    .task-item.done { opacity: 0.45; }
+    .task-item.done .task-title { text-decoration: line-through; color: var(--muted); }
+
+    .check-btn {
+      width: 20px; height: 20px;
+      border-radius: 5px;
+      border: 2px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 2px;
+      transition: border-color 0.2s, background 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .check-btn:hover { border-color: var(--accent); }
+
+    .task-item.done .check-btn { background: var(--accent); border-color: var(--accent); }
+
+    .check-btn svg {
+      width: 11px; height: 11px;
+      stroke: #0e0e0e;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .task-item.done .check-btn svg { opacity: 1; }
+
+    .task-body { flex: 1; min-width: 0; }
+
+    .task-title {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.4;
+      transition: color 0.2s;
+    }
+
+    .task-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    .task-actions { display: flex; gap: 5px; flex-shrink: 0; }
+
+    .btn-icon {
+      width: 30px; height: 30px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+
+    .btn-icon svg { width: 13px; height: 13px; }
+    .btn-icon.del { color: var(--accent2); }
+    .btn-icon.del:hover { background: rgba(255,94,58,0.1); border-color: var(--accent2); }
+
+    /* Empty / loading */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.25; }
+    .empty p { font-size: 13px; font-weight: 300; line-height: 1.8; }
+
+    .loading {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      padding: 60px;
+    }
+
+    .loading span {
+      width: 7px; height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    .loading span:nth-child(2) { animation-delay: 0.2s; }
+    .loading span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes pulse {
+      0%, 80%, 100% { opacity: 0.15; transform: scale(0.7); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(70px);
+      background: var(--accent);
+      color: #0e0e0e;
+      padding: 10px 22px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 999;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      body { overflow: auto; align-items: flex-start; }
+      .layout {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 100vh;
+        border-radius: 0;
+        width: 100%;
+      }
+      .left-panel { border-right: none; border-bottom: 1px solid var(--border); }
+      .right-panel { height: 60vh; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- LEFT: header + stats + form -->
+  <div class="left-panel">
+    <div>
+      <div class="eyebrow">✦ Personal workspace</div>
+      <h1>TASK<span>S.</span></h1>
+      <p class="subtitle">Stay sharp. Stay done.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">Total</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="stat-done">0</div>
+        <div class="stat-label">Done</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="stat-left">0</div>
+        <div class="stat-label">Left</div>
+      </div>
+    </div>
+
+    <div class="add-form">
+      <div class="form-label">New task</div>
+      <input type="text" id="title-input" placeholder="What needs to be done?" />
+      <input type="text" id="desc-input" placeholder="Add a note (optional)" />
+      <button class="btn-add" onclick="addTask()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Add Task
+      </button>
+    </div>
+
+    <div class="branding">Tasks App ✦ 2026</div>
+  </div>
+
+  <!-- RIGHT: scrollable task list -->
+  <div class="right-panel">
+    <div class="right-header">
+      <span class="right-title">Your tasks</span>
+      <span class="right-count" id="right-count">—</span>
+    </div>
+    <div class="task-scroll">
+      <div id="task-list">
+        <div class="loading"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const BASE = 'http://127.0.0.1:8000';
+
+  async function loadTasks() {
+    const list = document.getElementById('task-list');
+    try {
+      const res = await fetch(`${BASE}/tasks/`);
+      const tasks = await res.json();
+      renderTasks(tasks);
+    } catch {
+      list.innerHTML = `<div class="empty"><div class="empty-icon">⚡</div><p>Could not connect to server.<br>Make sure Django is running.</p></div>`;
+    }
+  }
+
+  function renderTasks(tasks) {
+    const list = document.getElementById('task-list');
+    updateStats(tasks);
+
+    document.getElementById('right-count').textContent =
+      tasks.length ? `${tasks.length} task${tasks.length !== 1 ? 's' : ''}` : '—';
+
+    if (!tasks.length) {
+      list.innerHTML = `<div class="empty"><div class="empty-icon">✦</div><p>No tasks yet.<br>Add one on the left.</p></div>`;
+      return;
+    }
+
+    list.innerHTML = tasks.map(t => `
+      <div class="task-item ${t.completed ? 'done' : ''}" id="task-${t.id}">
+        <button class="check-btn" onclick="toggleTask(${t.id})" title="Toggle complete">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </button>
+        <div class="task-body">
+          <div class="task-title">${escHtml(t.title)}</div>
+          ${t.disc ? `<div class="task-desc">${escHtml(t.disc)}</div>` : ''}
+        </div>
+        <div class="task-actions">
+          <button class="btn-icon del" onclick="deleteTask(${t.id})" title="Delete">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14H6L5 6"/>
+              <path d="M10 11v6M14 11v6"/>
+              <path d="M9 6V4h6v2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function updateStats(tasks) {
+    const done = tasks.filter(t => t.completed).length;
+    document.getElementById('stat-total').textContent = tasks.length;
+    document.getElementById('stat-done').textContent = done;
+    document.getElementById('stat-left').textContent = tasks.length - done;
+  }
+
+  async function addTask() {
+    const title = document.getElementById('title-input').value.trim();
+    const disc  = document.getElementById('desc-input').value.trim();
+    if (!title) { showToast('Please enter a task title!'); return; }
+
+    try {
+      await fetch(`${BASE}/add/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, disc })
+      });
+      document.getElementById('title-input').value = '';
+      document.getElementById('desc-input').value = '';
+      showToast('Task added ✦');
+      loadTasks();
+    } catch { showToast('Failed to add task.'); }
+  }
+
+  async function toggleTask(id) {
+    try {
+      await fetch(`${BASE}/update/${id}/`, { method: 'PUT' });
+      loadTasks();
+    } catch { showToast('Could not update task.'); }
+  }
+
+  async function deleteTask(id) {
+    const el = document.getElementById(`task-${id}`);
+    if (el) { el.style.opacity = '0'; el.style.transform = 'scale(0.95)'; el.style.transition = 'all 0.2s'; }
+    try {
+      await fetch(`${BASE}/delete/${id}/`, { method: 'DELETE' });
+      showToast('Task deleted.');
+      setTimeout(loadTasks, 200);
+    } catch { showToast('Could not delete task.'); loadTasks(); }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('title-input').addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+  document.getElementById('desc-input').addEventListener('keydown',  e => { if (e.key === 'Enter') addTask(); });
+
+  loadTasks();
+</script>
+</body>
+</html>
